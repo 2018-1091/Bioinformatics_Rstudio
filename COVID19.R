@@ -1,3 +1,5 @@
+## Initially, it was decided to analyze the ratio by nucleotides of the SARS-CoV-2 sequence. For this, the proteins S, ORF1, N, ORF7a, ORF3a, M and ORF6 were chosen.
+
 nombres<-c("S_protein","ORF1ab","N_protein","ORF7a","ORF3a","M_protein","ORF6")
 genome_sequence<-c("NC_045512.2")
 genes<-ape::read.GenBank(genome_sequence, as.character = T)
