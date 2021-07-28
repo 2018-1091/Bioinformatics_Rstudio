@@ -134,26 +134,18 @@ library(pd.hg.u133.plus.2)
 
 data <- getGEO("data164805", dataMatrix =TRUE, AnnotGPL=FALSE)
 
-```{r}
 data <- data[[1]]
 exprs(data) <- log2(exprs(data))
 boxplot(exprs(data),outline=FALSE)
 
-```
-```{r}
 sampleInfo <- pData(data)
 sampleInfo
-```
 
-```{r}
 design <- model.matrix(~0+sampleInfo$source_name_ch1)
 design
-```
-```{r}
-colnames(design) <- c("Normal","COVID_no_severo","COVID_severo")
-```
 
-```{r}
+colnames(design) <- c("Normal","COVID_no_severo","COVID_severo")
+
 summary(exprs(data))
 
 ## calculate median expression level
@@ -171,29 +163,19 @@ table(keep)
 
 ## subset to just those expressed genes
 data <- data[keep,]
-```
 
-```{r}
 fit <- lmFit(exprs(data), design)
 head(fit$coefficients)
-```
 
-```{r}
 contrasts <- makeContrasts(COVID_severo - COVID_no_severo, levels=design)
 fit2 <- contrasts.fit(fit, contrasts)
-```
 
-```{r}
 fit2 <- eBayes(fit2)
 topTable(fit2)
-```
 
-```{r}
 anno <- fData(data)
 anno
-```
 
-```{r}
 anno_genes<-cbind(anno$ID, anno$ORF)
 anno_genes<-data.frame(anno_genes)
 
@@ -207,6 +189,6 @@ for (i in 1:nrow(tab)){
   }
 }
 
-}```
+}
 
 
