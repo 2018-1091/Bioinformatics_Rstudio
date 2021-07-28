@@ -105,4 +105,108 @@ summary(fit1)
 tukeyobj1
 
 
-  
+#Packages:
+#BiocManager::install("clusterProfiler")
+#BiocManager::install("pathview")
+#BiocManager::install("enrichplot")
+#install.packages("forcats")
+#install.packages("stringr")
+#install.packages("ggplot2")
+#install.packages("ggrepel")
+#install.packages("readr")
+#install.packages("tidyr")
+#install.packages("survminer")
+#BiocManager::install("GEOquery")
+#BiocManager::install("limma")
+#BiocManager::install("pheatmap")
+#BiocManager::install("hgu133plus2.db")
+#BiocManager::install("pd.hg.u133.plus.2")
+
+library(limma)
+library(GEOquery)
+library(gplots)
+library(annotate)
+library(topGO)
+library(hgu133plus2.db)
+library(ggplot2)
+library(pd.hg.u133.plus.2)
+
+
+data <- getGEO("data164805", dataMatrix =TRUE, AnnotGPL=FALSE)
+
+```{r}
+data <- data[[1]]
+exprs(data) <- log2(exprs(data))
+boxplot(exprs(data),outline=FALSE)
+
+```
+```{r}
+sampleInfo <- pData(data)
+sampleInfo
+```
+
+```{r}
+design <- model.matrix(~0+sampleInfo$source_name_ch1)
+design
+```
+```{r}
+colnames(design) <- c("Normal","COVID_no_severo","COVID_severo")
+```
+
+```{r}
+summary(exprs(data))
+
+## calculate median expression level
+cutoff <- median(exprs(data))
+
+## TRUE or FALSE for whether each gene is "expressed" in each sample
+is_expressed <- exprs(data) > cutoff
+
+## Identify genes expressed in more than 2 samples
+
+keep <- rowSums(is_expressed) > 2
+
+## check how many genes are removed / retained.
+table(keep)
+
+## subset to just those expressed genes
+data <- data[keep,]
+```
+
+```{r}
+fit <- lmFit(exprs(data), design)
+head(fit$coefficients)
+```
+
+```{r}
+contrasts <- makeContrasts(COVID_severo - COVID_no_severo, levels=design)
+fit2 <- contrasts.fit(fit, contrasts)
+```
+
+```{r}
+fit2 <- eBayes(fit2)
+topTable(fit2)
+```
+
+```{r}
+anno <- fData(data)
+anno
+```
+
+```{r}
+anno_genes<-cbind(anno$ID, anno$ORF)
+anno_genes<-data.frame(anno_genes)
+
+#tab<-topTable(fit2,number = 3e6)
+tab$gene<-""
+for (i in 1:nrow(tab)){
+  for (j in 1:nrow(anno_genes)){
+    if (row.names(tab)[i]==anno_genes$X1[j]){
+      tab$gene[i]<-anno_genes$X2[j]
+    }
+  }
+}
+
+}```
+
+
