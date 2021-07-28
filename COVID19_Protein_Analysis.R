@@ -53,10 +53,47 @@ app2$req
 app2$req[[2]]
 seqinr::getSequence(app2$req[[2]])
 
-#4. Usando ape ====
+#4. Using ape ====
 
 acs.num <- c("MT419843.1","MT450923.1","MT419850.1",
              "MT419838.1","MT419849.1","MT419840.1")
 library(ape)
 cov2 <- ape::read.GenBank(acs.num, as.character = T)
 cov2
+
+For this part a package called CovidMutaciones () was used. Which was downloaded from the GitHub repository (devtools :: install_github ("MSQ-123 / CovidMutations")).
+
+```{r}
+library(CovidMutations)
+#The example data:
+data("nucmer")
+head(nucmer)
+# Fix IUPAC codes
+nucmer<-nucmer[!nucmer$qvar%in%c("B","D","H","K","M","N","R","S","V","W","Y"),]
+nucmer<- mergeEvents(nucmer = nucmer)## This will update the nucmer object
+```
+
++ Complete annotation of all mutations identified by this study. The columns are described here. Sample: GISAID sample ID; refpos: position in the reference genome NC_045512.2; refvar: nucleotide composition of the reference at the refpos coordinate (a "." indicates an insertion); qvar: variant in the query sample (a "." indicates a deletion); qlength: length of the query genome (the reference genome is always 29,903 nucleotides long)
+
+To provide effects of each SNP, insertion, and deletion in the virus genome.
+```{r}
+data("refseq")
+data("gff3")
+
+head(gff3)
+annot <- setNames(gff3[,10],gff3[,9])  #annot: subset the gene and its product.
+outdir <- tempdir()
+head(indelSNP(nucmer = nucmer,
+         saveRda = FALSE,
+         refseq = refseq,
+         gff3 = gff3,
+         annot = annot,
+         outdir = outdir))
+```
+
+The package also graphs the mutation statistics
+```{r}
+data("covid_annot")
+head(covid_annot)
+covid_annot <- as.data.frame(covid_annot)
+```
